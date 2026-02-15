@@ -10,11 +10,11 @@ const createEvent = asyncHandler(async(req, res) => {
     const {
         title,
         description,
-        registrationLink,
         location,
         eventType,
         startDate,
         endDate,
+        committee     
     } = req.body;
     
     // 1. Validation
@@ -23,11 +23,19 @@ const createEvent = asyncHandler(async(req, res) => {
     }
 
     // 2. Authorization
-    const member = await Member.findOne({ user: req.user._id });
-    if(!member) throw new ApiError(403, "User is not part of any committee");
-    if (!["core", "head"].includes(member.role)) throw new ApiError(403, "Not authorized");
-
-    const committee = member.committee
+    if (!committee) {
+      throw new ApiError(400, "Committee required");
+    }
+    
+    // check user belongs to that committee
+    const member = await Member.findOne({
+      user: req.user._id,
+      committee
+    });
+    
+    if (!member || !["core","head"].includes(member.role)) {
+      throw new ApiError(403, "Not authorized for this committee");
+    }
 
     // 3. SAFE UPLOAD LOGIC 
     let posterUrl = ""; 
@@ -49,7 +57,6 @@ const createEvent = asyncHandler(async(req, res) => {
         title,
         description,
         poster: posterUrl, 
-        registrationLink,
         location,
         eventType,
         startDate,
@@ -128,7 +135,6 @@ const updateEvent = asyncHandler(async (req, res) => {
     const {
       title,
       description,
-      registrationLink,
       location,
       eventType,
       startDate,
@@ -176,7 +182,6 @@ const updateEvent = asyncHandler(async (req, res) => {
       {
         title,
         description,
-        registrationLink,
         location,
         eventType,
         startDate,
