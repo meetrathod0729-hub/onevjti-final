@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api/axios";
 
@@ -12,10 +12,24 @@ const CreateEvent = () => {
     eventType: "technical",
     startDate: "",
     endDate: "",
-    registrationLink: "",
+    committee: ""
   });
 
   const [poster, setPoster] = useState(null);
+  const [committees, setCommittees] = useState([]);
+  // fetch committees for dropdown
+useEffect(() => {
+  const fetchCommittees = async () => {
+    try {
+      const res = await api.get("/committees");
+      setCommittees(res.data.data || []);
+    } catch (err) {
+      console.error("Failed to load committees", err);
+    }
+  };
+
+  fetchCommittees();
+}, []);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -78,6 +92,23 @@ const CreateEvent = () => {
           required
         />
 
+        {/* Committee Selection */}
+        <select
+        name="committee"
+        value={form.committee}
+        onChange={handleChange}
+        className="w-full border p-2 mb-3 rounded"
+        required
+        >
+  <option value="">Select Committee</option>
+  {committees.map((c) => (
+    <option key={c._id} value={c._id}>
+      {c.name}
+    </option>
+  ))}
+</select>
+
+
         {/* Location */}
         <input
           type="text"
@@ -115,16 +146,6 @@ const CreateEvent = () => {
           type="date"
           name="endDate"
           value={form.endDate}
-          onChange={handleChange}
-          className="w-full border p-2 mb-3 rounded"
-        />
-
-        {/* Registration Link */}
-        <input
-          type="url"
-          name="registrationLink"
-          placeholder="Registration Link"
-          value={form.registrationLink}
           onChange={handleChange}
           className="w-full border p-2 mb-3 rounded"
         />
