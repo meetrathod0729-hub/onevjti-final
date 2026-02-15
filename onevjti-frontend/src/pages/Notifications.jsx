@@ -14,13 +14,11 @@ const Notifications = () => {
   const isAdmin =
     user && ["admin", "head", "core"].includes(user.role);
 
-  /* ================= FETCH ================= */
-
   const fetchFeed = async () => {
     try {
       const res = await api.get("/notifications");
 
-      console.log("FULL RESPONSE:", res.data); // 👈 ADD THIS
+      console.log("FULL RESPONSE:", res.data); 
       setFeed(res.data.data || []);
     } catch (err) {
       console.error("Error fetching feed", err);
@@ -32,8 +30,6 @@ const Notifications = () => {
   useEffect(() => {
     fetchFeed();
   }, []);
-
-  /* ================= DELETE ================= */
 
   const handleDelete = async (id) => {
     if (!window.confirm("Delete notification?")) return;
@@ -47,8 +43,6 @@ const Notifications = () => {
       alert("Delete failed");
     }
   };
-
-  /* ================= UI ================= */
 
   if (loading) {
     return (
